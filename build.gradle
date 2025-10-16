@@ -1,0 +1,25 @@
+plugins {
+    // no application plugin here — applied in subprojects that need it
+    id 'java'
+}
+
+allprojects {
+    group = 'org.example'
+    version = '1.0'
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    // common dependency for all modules
+    dependencies {
+        implementation 'com.google.code.gson:gson:2.10.1'
+    }
+
+    tasks.withType(Test) {
+        useJUnitPlatform()
+    }
+}

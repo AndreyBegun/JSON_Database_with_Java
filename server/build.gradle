@@ -1,0 +1,12 @@
+plugins {
+    id 'application'
+}
+
+application {
+    // fully qualified main class for server
+    mainClass = 'server.Main'
+}
+
+dependencies {
+    implementation project(':common')
+}

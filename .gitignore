@@ -1,0 +1,113 @@
+# ===========================================
+#  Java + Gradle + IntelliJ IDEA .gitignore
+# ===========================================
+
+# Compiled class files
+*.class
+*.jar
+*.war
+*.ear
+
+# Log files
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# ======================
+# Gradle-specific ignores
+# ======================
+
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+.gradle-cache/
+out/
+bin/
+
+# Gradle local properties (contains user paths)
+gradle-app.setting
+gradle.properties
+local.properties
+
+# ======================
+# IntelliJ IDEA
+# ======================
+
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sonarlint and code style configs
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/shelf/
+.idea/**/dictionaries
+.idea/**/libraries
+.idea/**/caches/
+.idea/**/modules.xml
+.idea/**/gradle.xml
+.idea/**/compiler.xml
+.idea/**/jarRepositories.xml
+
+# ======================
+# VS Code (if ever used)
+# ======================
+.vscode/
+
+# ======================
+# OS-specific files
+# ======================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.cache/
+.Trash-*/
+
+# ======================
+# Backup / Temporary files
+# ======================
+*.tmp
+*.swp
+*.bak
+*.old
+*.orig
+
+# ======================
+# Test reports
+# ======================
+test-output/
+reports/
+*.report
+
+# ======================
+# Logs / runtime
+# ======================
+logs/
+*.pid
+
+# ======================
+# Miscellaneous
+# ======================
+.idea_modules/
+.settings/
+.project
+.classpath
+MANIFEST.MF

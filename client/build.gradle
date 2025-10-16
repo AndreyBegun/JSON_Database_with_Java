@@ -1,0 +1,11 @@
+plugins {
+    id 'application'
+}
+
+application {
+    mainClass = 'client.Main'
+}
+
+dependencies {
+    implementation project(':common')
+}
