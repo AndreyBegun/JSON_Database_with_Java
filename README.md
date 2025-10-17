@@ -44,8 +44,12 @@ In another terminal, run:
 
 Output:
 
-Client started!
-Sent: {"type":"set","key":"text","value":"Hello World!"}
+Client started!<br>
+Sent: {<br>
+"type":"set",<br>
+"key":"text",<br>
+"value":"Hello World!"<br>
+}
 Received: {"response":"OK"}
 
 🧩 Example JSON Input (via file)
@@ -87,9 +91,9 @@ Get nested field:
 
 getSurname.json:
 
-{
-"type": "get",
-"key": ["person","car","model"]
+{<br>
+"type": "get",<br>
+"key": ["person","car","model"]<br>
 }
 
 <h3>🧰 Technologies Used</h3>
