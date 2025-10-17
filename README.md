@@ -73,7 +73,7 @@ Set nested object:
 
 Contents of setPerson.json:
 
-{
+{<br>
 "type": "set", <br>
 "key": "person", <br>
 "value": { <br>
