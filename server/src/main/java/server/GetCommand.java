@@ -3,26 +3,48 @@ package server;
 import com.google.gson.*;
 
 public class GetCommand implements Command {
-    private final Database db;
-    private final JsonArray key;
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    public GetCommand(Database db, JsonArray key) {
-        this.db = db;
-        this.key = key;
+    private final JsonDatabase database;
+    private final JsonElement keyElement;
+
+    public GetCommand(JsonDatabase database, JsonElement keyElement) {
+        this.database = database;
+        this.keyElement = keyElement;
     }
 
     @Override
-    public String execute() {
-        JsonElement el = db.get(key);
-        JsonObject r = new JsonObject();
-        if (el != null) {
-            r.addProperty("response", "OK");
-            r.add("value", el);
-        } else {
-            r.addProperty("response", "ERROR");
-            r.addProperty("reason", "No such key");
+    public JsonObject execute() {
+        JsonObject response = new JsonObject();
+
+        try {
+            String[] keys = parseKey(keyElement);
+            JsonElement value = database.get(keys);
+
+            if (value == null || value.isJsonNull()) {
+                response.addProperty("response", "ERROR");
+                response.addProperty("reason", "No such key");
+            } else {
+                response.addProperty("response", "OK");
+                response.add("value", value);
+            }
+        } catch (Exception e) {
+            response.addProperty("response", "ERROR");
+            response.addProperty("reason", e.getMessage());
         }
-        return GSON.toJson(r);
+
+        return response;
+    }
+
+    private String[] parseKey(JsonElement keyElement) {
+        if (keyElement.isJsonArray()) {
+            JsonArray arr = keyElement.getAsJsonArray();
+            String[] keys = new String[arr.size()];
+            for (int i = 0; i < arr.size(); i++) {
+                keys[i] = arr.get(i).getAsString();
+            }
+            return keys;
+        } else {
+            return new String[]{ keyElement.getAsString() };
+        }
     }
 }

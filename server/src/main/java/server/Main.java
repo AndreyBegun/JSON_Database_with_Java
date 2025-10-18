@@ -1,47 +1,58 @@
 package server;
 
 import com.google.gson.*;
-import common.NetworkUtils;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
 
 public class Main {
-    private static final Gson GSON = new Gson();
+
+    private static final int PORT = 23456;
+    private static final String DB_FILE_PATH = "data/db.json";
+
     public static void main(String[] args) {
-        System.out.println("Server started!");
-        String dbPath = System.getProperty("user.dir") + "/src/server/data/db.json";
-        Database db = new Database(dbPath);
-        CommandFactory factory = new CommandFactory(db);
+        JsonDatabase database = new JsonDatabase(DB_FILE_PATH);
 
-        ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        try (ExecutorService executor = Executors.newFixedThreadPool(4)) {
+            System.out.println("Server started!");
 
-        try (ServerSocket ss = new ServerSocket(common.Constants.PORT)) {
-            while (!Thread.currentThread().isInterrupted()) {
-                Socket s = ss.accept();
-                pool.submit(() -> handleClient(s, factory));
+            try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+
+                while (true) {
+                    Socket socket = serverSocket.accept();
+                    executor.submit(() -> handleClient(socket, database, executor));
+                }
+
+            } catch (IOException e) {
+                System.out.println("Server error: " + e.getMessage());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            pool.shutdown();
         }
     }
 
-    private static void handleClient(Socket socket, CommandFactory factory) {
-        try (Socket s = socket) {
-            String reqJson = NetworkUtils.receiveJson(s);
-            JsonObject req = JsonParser.parseString(reqJson).getAsJsonObject();
-            Command cmd = factory.create(req);
-            String resp = cmd.execute();
-            NetworkUtils.sendJson(s, resp);
+    private static void handleClient(Socket socket, JsonDatabase database, ExecutorService executor) {
+        try (DataInputStream input = new DataInputStream(socket.getInputStream());
+             DataOutputStream output = new DataOutputStream(socket.getOutputStream())) {
 
-            // if exit requested, attempt graceful shutdown of entire JVM
-            if (req.has("type") && "exit".equals(req.get("type").getAsString())) {
+            String received = input.readUTF();
+            JsonObject request = JsonParser.parseString(received).getAsJsonObject();
+
+            Command command = CommandFactory.createCommand(database, request);
+            JsonObject response = command.execute();
+
+            output.writeUTF(response.toString());
+            output.flush();
+
+            if ("exit".equals(request.get("type").getAsString())) {
+                output.writeUTF(response.toString());
+                output.flush();
+
+                System.out.println("Exit command received. Shutting down...");
+                executor.shutdownNow();
                 System.exit(0);
             }
+
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Client connection error: " + e.getMessage());
         }
     }
 }

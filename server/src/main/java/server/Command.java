@@ -1,5 +1,7 @@
 package server;
 
+import com.google.gson.JsonObject;
+
 public interface Command {
-    String execute();
+    JsonObject execute();
 }

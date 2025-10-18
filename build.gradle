@@ -1,11 +1,12 @@
 plugins {
-    // no application plugin here — applied in subprojects that need it
     id 'java'
+    id 'jacoco'
 }
 
 allprojects {
     group = 'org.example'
     version = '1.0'
+
     repositories {
         mavenCentral()
     }
@@ -13,13 +14,37 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'jacoco'
 
-    // common dependency for all modules
     dependencies {
         implementation 'com.google.code.gson:gson:2.10.1'
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     }
 
-    tasks.withType(Test) {
+    tasks.withType(Test).configureEach {
         useJUnitPlatform()
+        // allow access to JDK modules for Java 24
+        jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
+    }
+
+    jacoco {
+        toolVersion = "0.8.13"
+    }
+
+    tasks.withType(JacocoReport).configureEach {
+        dependsOn(tasks.withType(Test))
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+        }
+
+        // Exclude internal JDK classes
+        classDirectories.from(
+                files(classDirectories.files.collect { dir ->
+                    fileTree(dir) {
+                        exclude 'jdk/**', 'java/**', 'sun/**', 'com/sun/**'
+                    }
+                })
+        )
     }
 }

@@ -1,12 +1,14 @@
 plugins {
+    id 'java'
     id 'application'
-}
-
-application {
-    // fully qualified main class for server
-    mainClass = 'server.Main'
+    id 'jacoco'
 }
 
 dependencies {
     implementation project(':common')
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+application {
+    mainClass = 'server.Main'
 }

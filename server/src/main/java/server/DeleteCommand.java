@@ -3,24 +3,47 @@ package server;
 import com.google.gson.*;
 
 public class DeleteCommand implements Command {
-    private final Database db;
-    private final JsonArray key;
-    private static final Gson GSON = new Gson();
 
-    public DeleteCommand(Database db, JsonArray key) {
-        this.db = db;
-        this.key = key;
+    private final JsonDatabase database;
+    private final JsonElement keyElement;
+
+    public DeleteCommand(JsonDatabase database, JsonElement keyElement) {
+        this.database = database;
+        this.keyElement = keyElement;
     }
 
     @Override
-    public String execute() {
-        boolean ok = db.delete(key);
-        JsonObject r = new JsonObject();
-        if (ok) r.addProperty("response", "OK");
-        else {
-            r.addProperty("response", "ERROR");
-            r.addProperty("reason", "No such key");
+    public JsonObject execute() {
+        JsonObject response = new JsonObject();
+
+        try {
+            String[] keys = parseKey(keyElement);
+
+            boolean deleted = database.delete(keys);
+            if (deleted) {
+                response.addProperty("response", "OK");
+            } else {
+                response.addProperty("response", "ERROR");
+                response.addProperty("reason", "No such key");
+            }
+        } catch (Exception e) {
+            response.addProperty("response", "ERROR");
+            response.addProperty("reason", e.getMessage());
         }
-        return GSON.toJson(r);
+
+        return response;
+    }
+
+    private String[] parseKey(JsonElement keyElement) {
+        if (keyElement.isJsonArray()) {
+            JsonArray arr = keyElement.getAsJsonArray();
+            String[] keys = new String[arr.size()];
+            for (int i = 0; i < arr.size(); i++) {
+                keys[i] = arr.get(i).getAsString();
+            }
+            return keys;
+        } else {
+            return new String[]{ keyElement.getAsString() };
+        }
     }
 }

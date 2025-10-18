@@ -1,15 +1,24 @@
 package server;
 
 import com.google.gson.JsonObject;
-import com.google.gson.Gson;
 
+/**
+ * Represents an invalid or unrecognized command.
+ * Returned when the "type" field in the request is missing or not supported.
+ */
 public class InvalidCommand implements Command {
-    private static final Gson GSON = new Gson();
+
+    private final String message;
+
+    public InvalidCommand(String message) {
+        this.message = message;
+    }
+
     @Override
-    public String execute() {
-        JsonObject r = new JsonObject();
-        r.addProperty("response", "ERROR");
-        r.addProperty("reason", "Invalid request");
-        return GSON.toJson(r);
+    public JsonObject execute() {
+        JsonObject response = new JsonObject();
+        response.addProperty("response", "ERROR");
+        response.addProperty("reason", message != null ? message : "Invalid request");
+        return response;
     }
 }

@@ -3,31 +3,23 @@ package server;
 import com.google.gson.*;
 
 public class CommandFactory {
-    private final Database db;
 
-    public CommandFactory(Database db) {
-        this.db = db;
-    }
+    public static Command createCommand(JsonDatabase db, JsonObject request) {
+        String type = request.get("type").getAsString();
 
-    public Command create(JsonObject request) {
-        String type = request.has("type") ? request.get("type").getAsString() : "";
-        JsonArray key = null;
-        if (request.has("key")) {
-            JsonElement keyEl = request.get("key");
-            if (keyEl.isJsonArray()) key = keyEl.getAsJsonArray();
-            else {
-                key = new JsonArray();
-                key.add(keyEl.getAsString());
-            }
+        JsonElement keyElement = request.has("key") ? request.get("key") : null;
+        JsonElement valueElement = request.has("value") ? request.get("value") : null;
+
+        if (type == null) {
+            return new InvalidCommand("Missing command type");
         }
-        JsonElement value = request.has("value") ? request.get("value") : null;
 
-        switch (type) {
-            case "get": return new GetCommand(db, key);
-            case "set": return new SetCommand(db, key, value);
-            case "delete": return new DeleteCommand(db, key);
-            case "exit": return new ExitCommand();
-            default: return new InvalidCommand();
-        }
+        return switch (type) {
+            case "get" -> new GetCommand(db, keyElement);
+            case "set" -> new SetCommand(db, keyElement, valueElement);
+            case "delete" -> new DeleteCommand(db, keyElement);
+            case "exit" -> new ExitCommand();
+            default -> new InvalidCommand("Unknown command type: " + type);
+        };
     }
 }
