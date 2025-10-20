@@ -109,4 +109,5 @@ ExecutorService (for concurrency)
 <h3>🧑‍💻 Author</h3>
 
 Andrei Biahun <br>
+
 abiahun@griddynamics.com
